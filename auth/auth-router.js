@@ -2,6 +2,7 @@ const bc = require("bcryptjs");
 const router = require("express").Router();
 const Users = require("./users-model");
 const { isValidUser, createToken } = require("../utils");
+const usersModel = require("./users-model");
 
 router.post("/register", async (req, res) => {
   const newUser = req.body;
@@ -22,6 +23,16 @@ router.post("/register", async (req, res) => {
     }
   } else {
     res.status(400).json({ message: "Please provide proper credentials" });
+  }
+});
+
+router.get("/users", async (req, res) => {
+  const id = req.params;
+  try {
+    const user = await usersModel.findBy(id);
+    res.status(200).json({ user });
+  } catch {
+    res.status(500).json({ message: "could not find user" });
   }
 });
 

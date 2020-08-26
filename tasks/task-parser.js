@@ -61,6 +61,8 @@ function taskParser(req, res, next) {
       }
 
       newReqBody.name = name;
+      newReqBody.dueDate = req.body.dueDate;
+      newReqBody.completed = req.body.completed;
       newReqBody.user_id = id;
     } catch (e) {
       // This will probably only fail if no name is provided

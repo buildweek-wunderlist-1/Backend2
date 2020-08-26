@@ -5,9 +5,13 @@ exports.seed = function (knex) {
     .then(function () {
       // Inserts seed entries
       return knex("tasks").insert([
-        { id: 1, name: "rowValue1" },
-        { id: 2, dueDate: "rowValue2" },
-        { id: 3, colName: "rowValue3" },
+        {
+          id: 1,
+          name: "TEST TASK 1",
+          dueDate: "2020-08-29",
+          completed: true,
+          user_id: 1,
+        },
       ]);
     });
 };

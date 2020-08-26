@@ -5,14 +5,14 @@ exports.up = function (knex) {
       t.string("name", 256).unique().notNullable().index();
     })
     .createTable("users", t => {
-      t.increments("id");
+      t.increments();
       t.string("username", 256).notNullable().unique().index();
       t.string("name", 256);
       t.string("email", 256).unique();
       t.string("password", 256).notNullable();
     })
     .createTable("tasks", t => {
-      t.increments("id");
+      t.increments();
       t.string("name", 255).notNullable();
       t.string("dueDate", 24);
       t.boolean("completed");
