@@ -1,82 +1,56 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-
+const bc = require("bcryptjs");
 const router = require("express").Router();
+const Users = require("./users-model");
+const { isValidUser, createToken } = require("../utils");
 
-const Users = require("./auth-model.js");
-const { isValid } = require("./auth-service.js");
-const constants = require("../config/constants.js");
-
-router.post("/signup", (req, res) => {
-  const credentials = req.body;
-
-  if (isValid(credentials)) {
-    // implement registration
+router.post("/register", async (req, res) => {
+  const { body: newUser } = req;
+  if (isValidUser(newUser)) {
+    // hash the password
+    const { password } = newUser;
     const rounds = process.env.BCRYPT_ROUNDS || 8;
-
-    // hash password
-    const hash = bcrypt.hashSync(credentials.password, rounds);
-
-    credentials.password = hash;
-
-    //save user to db
-    Users.add(credentials)
-      .then(user => {
-        res.status(201).json({ data: user });
-      })
-      .catch(error => {
-        res.status(500).json({ errorMessage: error.message });
-      });
+    const hash = bc.hashSync(password, rounds);
+    // store user in the database and resolve endpoint
+    try {
+      const [id] = await Users.insert({ ...newUser, password: hash });
+      const token = createToken({ ...newUser, id });
+      res.status(201).json({ token });
+    } catch (e) {
+      res.status(500).json({ message: "Unable to create user" });
+    }
   } else {
-    res.status(400).json({
-      message:
-        "Please provide username and password. (The password shoud be alphanumeric)",
-    });
+    res.status(400).json({ message: "Please provide proper credentials" });
   }
 });
 
-router.post("/login", (req, res) => {
-  // implement login
-  const { username, password } = req.body;
+router.post("/login", async (req, res) => {
+  const { body: credentials } = req;
+  if (isValidUser(credentials)) {
+    const { username, password } = credentials;
+    // run query based on passed in username
+    try {
+      const [user] = await Users.findBy({ username });
+      // If user is found and passwords match
+      if (user && bc.compareSync(password, user.password)) {
+        const token = createToken(user);
+        res.status(200).json({ token });
+      } else {
+        // No user OR wrong password
+        res.status(401).json({ message: "Please provide valid credentials" });
+      }
+    } catch (e) {
+      res.status(500).json({ message: "An error occurred while logging in" });
+    }
 
-  if (isValid(req.body)) {
-    Users.findBy({ username: username })
-      .then(([user]) => {
-        // compare the password and the hash stored in the db
-        if (user && bcrypt.compareSync(password, user.password)) {
-          const token = signToken(user);
-
-          res.status(200).json({
-            message: "Welcome to the API",
-            token,
-          });
-        } else {
-          res.status(401).json({ message: "Invalid Credentials!" });
-        }
-      })
-      .catch(error => {
-        res.status(500).json({ errorMessage: error.message });
-      });
+    // Send back a token
   } else {
-    res.status(400).json({
-      message:
-        "Please provide username and password. (The password shoud be alphanumeric)",
-    });
+    res.status(400).json({ message: "Please provide valid credentials" });
   }
 });
 
-function signToken(user) {
-  const payload = {
-    subject: user.id,
-    username: user.username,
-  };
-
-  const secret = constants.jwtSecret;
-
-  const options = {
-    expiresIn: "1d",
-  };
-  return jwt.sign(payload, secret, options);
-}
+// Test Endpoint
+router.get("/", (req, res) => {
+  res.status(200).json({ router: "up" });
+});
 
 module.exports = router;
