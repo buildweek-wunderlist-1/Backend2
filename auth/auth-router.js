@@ -4,7 +4,7 @@ const Users = require("./users-model");
 const { isValidUser, createToken } = require("../utils");
 
 router.post("/register", async (req, res) => {
-  const { body: newUser } = req;
+  const newUser = req.body;
   if (isValidUser(newUser)) {
     // hash the password
     const { password } = newUser;
