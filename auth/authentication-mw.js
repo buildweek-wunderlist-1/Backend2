@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
-const { jwt_secret } = require("../config/constants");
+const { jwtSecret } = require("../config/constants");
 
 module.exports = (req, res, next) => {
   const { authorization: token } = req.headers;
   if (token) {
-    jwt.verify(token, jwt_secret, (err, decodedToken) => {
+    jwt.verify(token, jwtSecret, (err, decodedToken) => {
       if (err) {
         res.status(401).json({ message: "You are no longer logged in" });
       } else {

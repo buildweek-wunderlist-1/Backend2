@@ -10,20 +10,23 @@ router.get("/", async (req, res) => {
   try {
     const tasks = await Tasks.getByUserId(id);
     res.status(200).json(tasks);
+    console.log(tasks);
   } catch (e) {
-    res.status(500).json({ message: "Unable to complete your request" });
+    res.status(500).json({ message: "Unable to complete your GET request" });
   }
 });
 
 router.post("/", taskParser, async (req, res) => {
-  const { body: newTask } = req;
+  // const { name, dueDate, completed, user_id } = req.body;
+  const newTask = req.body;
+  console.log(newTask);
   if (isValidTask(newTask)) {
-    const { name, dueDate } = req.body;
     try {
+      console.log("hi");
       const resData = await Tasks.add(newTask);
       res.status(201).json(resData);
     } catch (e) {
-      res.status(500).json({ message: "Unable to complete your request" });
+      res.status(500).json({ message: "Unable to complete your POST request" });
     }
   } else {
     res.status(400).json({ message: "Task is not valid" });
