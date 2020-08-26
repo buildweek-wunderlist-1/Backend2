@@ -1,7 +1,7 @@
 const { createToken, isValidUser, getNextDay } = require("./index");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
-const { jwt_secret } = require("../config/constants");
+const { jwtSecret } = require("../config/constants");
 
 const username = "michael",
   password = "hello",
@@ -20,7 +20,7 @@ describe("utils", () => {
       jwt.verify(myToken, "wrong secret", (err, decodedToken) => {
         expect(err.message).toBe("invalid signature");
       });
-      jwt.verify(myToken, jwt_secret, (err, decodedToken) => {
+      jwt.verify(myToken, jwtSecret, (err, decodedToken) => {
         expect(decodedToken.username).toBe(username);
         expect(decodedToken.id).toBe(id);
         expect(decodedToken.password).toBeUndefined();

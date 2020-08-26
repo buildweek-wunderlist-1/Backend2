@@ -13,9 +13,11 @@ router.post("/register", async (req, res) => {
     // store user in the database and resolve endpoint
     try {
       const [id] = await Users.insert({ ...newUser, password: hash });
+      console.log(id);
       const token = createToken({ ...newUser, id });
       res.status(201).json({ token });
     } catch (e) {
+      console.log(e);
       res.status(500).json({ message: "Unable to create user" });
     }
   } else {

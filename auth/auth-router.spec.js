@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const request = require("supertest");
 const server = require("../api/server");
 const db = require("../data/db-config");
-const { jwt_secret } = require("../config/constants");
+const { jwtSecret } = require("../config/constants");
 
 // Values for testing
 const username = "Michael",
@@ -61,7 +61,7 @@ describe("/api/auth AUTH ROUTER", () => {
       myToken = res.body.token;
     });
     it("should be a valid token", () => {
-      jwt.verify(myToken, jwt_secret, (err, decodedToken) => {
+      jwt.verify(myToken, jwtSecret, (err, decodedToken) => {
         expect(err).toBeNull();
         expect(decodedToken.username).toBe(username);
       });
